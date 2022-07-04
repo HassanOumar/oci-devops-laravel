@@ -25,56 +25,56 @@ steps:
     command: |
       export BUILDRUN_HASH=`echo ${OCI_BUILD_RUN_ID} | rev | cut -c 1-7`
       echo "BUILDRUN_HASH: " $BUILDRUN_HASH
-  - type: Command
-    timeoutInSeconds: 600
-    name: "Install Node Prereqs"
-    command: |
-      cd ${OCI_WORKSPACE_DIR}/node_express
-      # install nvm
-      curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-      export NVM_DIR="$HOME/.nvm"
-      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-      nvm install lts/erbium
-      echo "NODE VERSION: $(node -v)"
-      echo "NPM VERSION: $(npm -v)"
-    onFailure:
-      - type: Command
-        command: |
-          echo "Handling Failure"
-          echo "Failure successfully handled"
-        timeoutInSeconds: 40
-        runAs: root
+  # - type: Command
+  #   timeoutInSeconds: 600
+  #   name: "Install Node Prereqs"
+  #   command: |
+  #     cd ${OCI_WORKSPACE_DIR}/node_express
+  #     # install nvm
+  #     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+  #     export NVM_DIR="$HOME/.nvm"
+  #     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+  #     nvm install lts/erbium
+  #     echo "NODE VERSION: $(node -v)"
+  #     echo "NPM VERSION: $(npm -v)"
+  #   onFailure:
+  #     - type: Command
+  #       command: |
+  #         echo "Handling Failure"
+  #         echo "Failure successfully handled"
+  #       timeoutInSeconds: 40
+  #       runAs: root
   
-  - type: Command
-    timeoutInSeconds: 600
-    name: "Install PHP"
-    command: |
-      yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-      yum install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
-      yum install yum-utils
-      yum-config-manager --enable remi-php80
-      yum install -y php php-mcrypt php-cli php-gd php-curl php-mysql php-ldap php-zip php-fileinfo
-      echo "PHP VERSION: $(php -v)"
+  # - type: Command
+  #   timeoutInSeconds: 600
+  #   name: "Install PHP"
+  #   command: |
+  #     yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+  #     yum install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+  #     yum install yum-utils
+  #     yum-config-manager --enable remi-php80
+  #     yum install -y php php-mcrypt php-cli php-gd php-curl php-mysql php-ldap php-zip php-fileinfo
+  #     echo "PHP VERSION: $(php -v)"
     
-  - type: Command
-    timeoutInSeconds: 600
-    name: "Install PHP Composer"
-    command: |
-      cd ${OCI_WORKSPACE_DIR}/node_express
-      yum install wget -y
-      wget https://getcomposer.org/installer -O composer-installer.php
-      php composer-installer.php --filename=composer --install-dir=/usr/bin
-      # php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-      # php -r "if (hash_file('sha384', 'composer-setup.php') === '55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
-      # php composer-setup.php --install-dir=bin
-      echo "PHP COMPOSER VERSION: $(composer --version)"
-    onFailure:
-      - type: Command
-        command: |
-          echo "Handling Failure"
-          echo "Failure successfully handled"
-        timeoutInSeconds: 40
-        runAs: root
+  # - type: Command
+  #   timeoutInSeconds: 600
+  #   name: "Install PHP Composer"
+  #   command: |
+  #     cd ${OCI_WORKSPACE_DIR}/node_express
+  #     yum install wget -y
+  #     wget https://getcomposer.org/installer -O composer-installer.php
+  #     php composer-installer.php --filename=composer --install-dir=/usr/bin
+  #     # php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+  #     # php -r "if (hash_file('sha384', 'composer-setup.php') === '55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+  #     # php composer-setup.php --install-dir=bin
+  #     echo "PHP COMPOSER VERSION: $(composer --version)"
+  #   onFailure:
+  #     - type: Command
+  #       command: |
+  #         echo "Handling Failure"
+  #         echo "Failure successfully handled"
+  #       timeoutInSeconds: 40
+  #       runAs: root
   
   # - type: Command
   #   timeoutInSeconds: 600
@@ -90,19 +90,19 @@ steps:
   #       timeoutInSeconds: 40
   #       runAs: root
   
-  - type: Command
-    timeoutInSeconds: 600
-    name: "Composer install"
-    command: |
-      cd ${OCI_WORKSPACE_DIR}/node_express
-      composer install
-    onFailure:
-      - type: Command
-        command: |
-          echo "Handling Failure"
-          echo "Failure successfully handled"
-        timeoutInSeconds: 40
-        runAs: root
+  # - type: Command
+  #   timeoutInSeconds: 600
+  #   name: "Composer install"
+  #   command: |
+  #     cd ${OCI_WORKSPACE_DIR}/node_express
+  #     composer install
+  #   onFailure:
+  #     - type: Command
+  #       command: |
+  #         echo "Handling Failure"
+  #         echo "Failure successfully handled"
+  #       timeoutInSeconds: 40
+  #       runAs: root
 
   # - type: Command
   #   timeoutInSeconds: 1200
