@@ -47,6 +47,16 @@ steps:
   
   - type: Command
     timeoutInSeconds: 600
+    name: "Install PHP"
+    command: |
+      yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+      yum install http://rpms.remirepo.net/enterprise/remi-release-8.rpm
+      yum install yum-utils
+      yum-config-manager --enable remi-php8
+      yum install php php-mcrypt php-cli php-gd php-curl php-mysql php-ldap php-zip php-fileinfo
+  
+  - type: Command
+    timeoutInSeconds: 600
     name: "Install PHP Composer"
     command: |
       cd ${OCI_WORKSPACE_DIR}/node_express
