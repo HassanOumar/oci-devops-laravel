@@ -1,32 +1,75 @@
-FROM webdevops/php-nginx:8.0-alpine
+FROM jed.ocir.io/axsmatigqj6i/php:7.4-apache
 
-# Install Laravel framework system requirements (https://laravel.com/docs/8.x/deployment#optimizing-configuration-loading)
-RUN apk add oniguruma-dev postgresql-dev libxml2-dev
+#install all the system dependencies and enable PHP modules
+RUN apt-get update && apt-get install -y \
+    libicu-dev \
+    libpq-dev \
+    libmcrypt-dev \
+    libonig-dev \
+    libzip-dev \
+    libpng-dev \
+    libsodium-dev \
+    git \
+    zip \
+    unzip
+
+RUN rm -r /var/lib/apt/lists/*
+RUN docker-php-ext-configure pdo_mysql --with-pdo-mysql=mysqlnd 
 RUN docker-php-ext-install \
-        bcmath \
-        ctype \
-        fileinfo \
-        json \
-        mbstring \
-        pdo_mysql \
-        pdo_pgsql \
-        tokenizer \
-        xml
+    intl \
+    mbstring \
+    # mcrypt \
+    # pcntl \
+    pdo_mysql \
+    gd \
+    zip \
+    sodium \
+    opcache
 
-# Copy Composer binary from the Composer official Docker image
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+#install composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer
 
-ENV WEB_DOCUMENT_ROOT /app/public
-ENV APP_ENV production
-WORKDIR /app
-COPY . .
+#set our application folder as an environment variable
+ENV APP_HOME /var/www/html
 
-RUN composer install --no-interaction --optimize-autoloader --no-dev
-# Optimizing Configuration loading
-RUN php artisan config:cache
-# Optimizing Route loading
-RUN php artisan route:cache
-# Optimizing View loading
-RUN php artisan view:cache
+#change uid and gid of apache to docker user uid/gid
+RUN usermod -u 1000 www-data && groupmod -g 1000 www-data
 
-RUN chown -R application:application .
+#change the web_root to laravel /var/www/html/public folder
+RUN sed -i -e "s/html/html\/public/g" /etc/apache2/sites-enabled/000-default.conf
+
+# enable apache module rewrite
+RUN a2enmod rewrite
+
+#copy source files and run composer
+WORKDIR $APP_HOME
+
+COPY composer.json composer.json
+COPY database database
+RUN composer install --no-scripts
+
+RUN curl -fsSL https://deb.nodesource.com/setup_15.x | bash - && \
+    apt-get install -y nodejs
+
+# Install packages.json
+# COPY package.json package.json
+# COPY resources resources
+# COPY webpack.mix.js webpack.mix.js
+# RUN npm install --no-dev \
+#     && npm run prod \
+#     && rm node_modules -R
+
+COPY --chown=www-data:www-data . .
+
+USER root
+COPY start.sh /usr/local/bin/start
+RUN chmod +x /usr/local/bin/start
+
+RUN composer dumpautoload
+
+#change ownership of our applications
+# RUN chown -R www-data:www-data $APP_HOME
+
+EXPOSE 80
+
+CMD ["/usr/local/bin/start"]
